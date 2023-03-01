@@ -67,7 +67,11 @@ window.onclick = function(event) {
 
 
 let canvas = document.getElementById("overlayCanvas");
-let context = canvas.getContext("2d");
+let context = null;
+if(canvas){
+  context = canvas.getContext("2d");
+}
+
 //initially mouse X and Y positions are 0
 let mouseX = 0;
 let mouseY = 0;
@@ -100,20 +104,28 @@ const is_touch_device = () => {
 };
 
 
-let gradientColor = context.createLinearGradient(0, 0, 135, 135);
-gradientColor.addColorStop(0, "#C3A3F1");
-gradientColor.addColorStop(1, "#6414E9");
-context.fillStyle = gradientColor;
+let gradientColor = context? context.createLinearGradient(0, 0, 135, 135): null;
+if(context){
+  gradientColor.addColorStop(0, "#C3A3F1");
+  gradientColor.addColorStop(1, "#6414E9");
+  context.fillStyle = gradientColor;
+  
+}
 
 var element = document.getElementById("overlayCanvas");
 
-if(element){
+if(element && context){
   context.fillRect(0, 0, element.clientWidth, element.clientHeight);
 }
 
 //get left and top of canvas
-let rectLeft = canvas.getBoundingClientRect().left;
-let rectTop = canvas.getBoundingClientRect().top;
+let rectLeft = 0;
+let rectTop = 0;
+if(canvas){
+  rectLeft = canvas.getBoundingClientRect().left;
+  rectTop = canvas.getBoundingClientRect().top;
+  
+}
 
 //exact x and y position of mouse/touch
 const getXY = (e) => {
@@ -122,141 +134,49 @@ const getXY = (e) => {
 };
 
 const scratch = (x, y) => {
-	// destination-out draws new shapes behind the existing canvas content.
-	context.globalCompositeOperation = "destination-out";
-	context.beginPath();
-	//arc makes circle- x,y,radius,start angle, end angle
-	context.arc(x, y, 25, 0, 2 * Math.PI);
-	context.fill();
+  if(context){
+    // destination-out draws new shapes behind the existing canvas content.
+    context.globalCompositeOperation = "destination-out";
+    context.beginPath();
+    //arc makes circle- x,y,radius,start angle, end angle
+    context.arc(x, y, 25, 0, 2 * Math.PI);
+    context.fill();
+  }
 };
 
 is_touch_device();
-// start scratch
-canvas.addEventListener(events[deviceType].down, (event) => {
-	isDragged = true;
-	//get x and y position
-	getXY(event);
-	scratch(mouseX, mouseY);
-});
+if(canvas){
+  // start scratch
+  canvas.addEventListener(events[deviceType].down, (event) => {
+    isDragged = true;
+    //get x and y position
+    getXY(event);
+    scratch(mouseX, mouseY);
+  });
 
-//mousemove/touchmove
-canvas.addEventListener(events[deviceType].move, (event) => {
-	if (!is_touch_device()) {
-		event.preventDefault();
-	}
-	if (isDragged) {
-		getXY(event);
-		scratch(mouseX, mouseY);
-	}
-});
+  //mousemove/touchmove
+  canvas.addEventListener(events[deviceType].move, (event) => {
+    if (!is_touch_device()) {
+      event.preventDefault();
+    }
+    if (isDragged) {
+      getXY(event);
+      scratch(mouseX, mouseY);
+    }
+  });
 
-// stop drawing
-canvas.addEventListener(events[deviceType].up, () => {
-	isDragged = false;
-});
+  // stop drawing
+  canvas.addEventListener(events[deviceType].up, () => {
+    isDragged = false;
+  });
 
-// if mouse leaves the square
-canvas.addEventListener("mouseleave", () => {
-	isDragged = false;
-});
+  // if mouse leaves the square
+  canvas.addEventListener("mouseleave", () => {
+    isDragged = false;
+  });
+
+}
+
 
 /**************************************************************************************/
-
-
-
-/**********************************************************************************************
- * 
- * Spin wheel js
- * 
- */
-
-/* --------------- Spin Wheel  --------------------- */
-const spinWheel = document.getElementById("spinWheel");
-const spinBtn = document.getElementById("spin_btn");
-const text = document.getElementById("text");
-/* --------------- Minimum And Maximum Angle For A value  --------------------- */
-const spinValues = [
-  { minDegree: 61, maxDegree: 120, value: 100 },
-  { minDegree: 0, maxDegree: 60, value: 300 },
-  { minDegree: 301, maxDegree: 360, value: 500 },
-  { minDegree: 241, maxDegree: 300, value: 700 },
-  { minDegree: 181, maxDegree: 240, value: 900 },
-  { minDegree: 121, maxDegree: 180, value: 1100 },
-];
-/* --------------- Size Of Each Piece  --------------------- */
-const size = [10, 10, 10, 10, 10, 10];
-/* --------------- Background Colors  --------------------- */
-var spinColors = [
-  "#E74C3C",
-  "#7D3C98",
-  "#2E86C1",
-  "#138D75",
-  "#F1C40F",
-  "#D35400"
-];
-/* --------------- Chart --------------------- */
-/* --------------- Guide : https://chartjs-plugin-datalabels.netlify.app/guide/getting-started.html --------------------- */
-let spinChart = new Chart(spinWheel, {
-  plugins: [ChartDataLabels],
-  type: "pie",
-  data: {
-    labels: [1, 2, 3, 4, 5, 6],
-    datasets: [
-      {
-        backgroundColor: spinColors,
-        data: size,
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    animation: { duration: 0 },
-    plugins: {
-      tooltip: false,
-      legend: {
-        display: false,
-      },
-      datalabels: {
-        rotation: 90,
-        color: "#ffffff",
-        formatter: (_, context) => context.chart.data.labels[context.dataIndex],
-        font: { size: 24 },
-      },
-    },
-  },
-});
-/* --------------- Display Value Based On The Angle --------------------- */
-const generateValue = (angleValue) => {
-  for (let i of spinValues) {
-    if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
-      text.innerHTML = `<p>Congratulations, You Have Won $${i.value} ! </p>`;
-      spinBtn.disabled = false;
-      break;
-    }
-  }
-};
-/* --------------- Spinning Code --------------------- */
-let count = 0;
-let resultValue = 101;
-spinBtn.addEventListener("click", () => {
-  spinBtn.disabled = true;
-  text.innerHTML = `<p>Best Of Luck!</p>`;
-  let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
-  let rotationInterval = window.setInterval(() => {
-    spinChart.options.rotation = spinChart.options.rotation + resultValue;
-    spinChart.update();
-    if (spinChart.options.rotation >= 360) {
-      count += 1;
-      resultValue -= 5;
-      spinChart.options.rotation = 0;
-    } else if (count > 15 && spinChart.options.rotation == randomDegree) {
-      generateValue(randomDegree);
-      clearInterval(rotationInterval);
-      count = 0;
-      resultValue = 101;
-    }
-  }, 10);
-});
-/* --------------- End Spin Wheel  --------------------- */
-
 

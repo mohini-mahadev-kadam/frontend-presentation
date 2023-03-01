@@ -72,7 +72,7 @@ function popup_with_random_offer_shortcode() {
             <div class="hero">
               <span class="close">&times;</span>
               <div class="box">
-                <h2>Surprize Offer</h2>
+                <h2>Surprise Offer</h2>
 
                 <div class="flip-card">
                   <div class="flip-card-inner">
@@ -80,7 +80,7 @@ function popup_with_random_offer_shortcode() {
                       <img src="'.$surpriseBoxImg.'" alt="Avatar" style="width:100%;height:100%;">
                     </div>
                     <div class="flip-card-back">
-                      <h1>'.$randomCoupon->get_amount().'<span>'.$randomCoupon->get_discount_type().'</span></h1>
+                      <h1>'.$randomCoupon->get_amount().'<span>'.($randomCoupon->get_discount_type()=="percent"?"%":$randomCoupon->get_discount_type()).' off </span></h1>
                       <b>This is very limited offer which is ending Today.</b>
                       <p> <span class="coupon_code_highlight">'.$coupon_code.'</span> Use this coupon code to avail the offer.
                     </div>
@@ -109,7 +109,7 @@ function popup_with_random_offer_shortcode() {
                 <div class="scratch-container">
                   <div class="scratch-inner">
                     <div class="scratch-inner-main">
-                      <h1>'.$randomCoupon->get_amount().'<span>'.$randomCoupon->get_discount_type().'</span></h1>
+                      <h1>'.$randomCoupon->get_amount().'<span>'.($randomCoupon->get_discount_type()=="percent"?"%":$randomCoupon->get_discount_type()).' off</span></h1>
                       <b>This is very limited offer which is ending Today.</b>
                       <p> <span class="coupon_code_highlight">'.$coupon_code.'</span> Use this coupon code to avail the offer.</p>
                     </div>
